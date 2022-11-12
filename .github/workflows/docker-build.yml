@@ -45,7 +45,7 @@ jobs:
         with:
           registry: ghcr.io
           username: $GITHUB_ACTOR
-          password: DOCKER_GITHUB_TOKEN
+          password: $DOCKER_GITHUB_TOKEN
       
       - name: Build image and push to Docker Hub and GitHub Container Registry
         uses: docker/build-push-action@v2

@@ -5,6 +5,14 @@ on:
   push:
     branches: [docker]
 
+env:
+    DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    DOCKER_GITHUB_TOKEN: ${{ secrets.DOCKER_GITHUB_TOKEN }}
+    GITHUB_ACTOR: ${{ github.actor }}
+    DOCKER_IMAGE_NAME: nodejs-image-demo
+    DOCKER_IMAGE_TAG: latest
+
 jobs:
   # define job to build and publish docker image
   build-and-push-docker-image:
@@ -25,15 +33,15 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_TOKEN
 
       - name: Login to Github Packages
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_GITHUB_TOKEN }}
+          username: $GITHUB_ACTOR
+          password: DOCKER_GITHUB_TOKEN
       
       - name: Build image and push to Docker Hub and GitHub Container Registry
         uses: docker/build-push-action@v2
@@ -42,8 +50,8 @@ jobs:
           context: ./
           # Note: tags has to be all lower-case
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-image-demo:latest 
-            ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/nodejs-image-demo:latest
+            $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG 
+            ghcr.io/$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/docker' }}
 

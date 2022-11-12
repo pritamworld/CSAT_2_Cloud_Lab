@@ -24,6 +24,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Test Env
+        ## Reference your environment variables
+        run: echo "The DOCKERHUB_USERNAME key is:$DOCKERHUB_USERNAME" 
 
       # setup Docker buld action
       - name: Set up Docker Buildx

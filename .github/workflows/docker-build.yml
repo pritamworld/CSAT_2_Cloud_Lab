@@ -1,0 +1,75 @@
+name: Docker Build and Publish to Docker Hub
+
+on:
+  # run it on push to the default repository branch
+  push:
+    branches: [docker]
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  DOCKER_GITHUB_TOKEN: ${{ secrets.DOCKER_GITHUB_TOKEN }}
+  GITHUB_ACTOR: ${{ github.actor }}
+  DOCKER_IMAGE_NAME: nodejs-image-demo
+  DOCKER_IMAGE_TAG: latest
+
+jobs:
+  # define job to build and publish docker image
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
+    # run only when code is compiling and tests are passing
+    runs-on: ubuntu-latest
+
+    # steps to perform in job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Test Env
+        ## Reference your environment variables
+        run: echo "The DOCKER_IMAGE_NAME key is:$DOCKER_IMAGE_NAME" 
+
+      - name: echo-default-env-variables
+        run: |
+            echo "Home: ${HOME}"
+            echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
+            echo "GITHUB_ACTIONS: ${GITHUB_ACTIONS}"
+            echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+            echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
+            echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}"
+            echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+            echo "GITHUB_SHA: ${GITHUB_SHA}"
+            echo "GITHUB_REF: ${GITHUB_REF}"
+
+      # setup Docker buld action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.GITHUB_ACTOR }}
+          password: ${{ env.DOCKER_GITHUB_TOKEN }}
+      
+      - name: Build image and push to Docker Hub and GitHub Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: ./
+          # Note: tags has to be all lower-case
+          tags: |
+            ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            ghcr.io/${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+          # build on feature branches, push only on main branch
+          push: ${{ github.ref == 'refs/heads/docker' }}
+
+      - name: Image digest
+        run: echo ${{ steps.buildx.outputs.digest }}

@@ -1,3 +1,5 @@
+[![Docker Build and Publish to Docker Hub](https://github.com/pritamworld/CSAT_2_Cloud_Lab/actions/workflows/docker-build.yml/badge.svg)](https://github.com/pritamworld/CSAT_2_Cloud_Lab/actions/workflows/docker-build.yml)
+
 Hello World
 
 LCIT

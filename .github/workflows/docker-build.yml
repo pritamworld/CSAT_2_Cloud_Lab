@@ -27,7 +27,7 @@ jobs:
       
       - name: Test Env
         ## Reference your environment variables
-        run: echo "The DOCKERHUB_USERNAME key is:$DOCKERHUB_USERNAME" 
+        run: echo "The DOCKER_IMAGE_NAME key is:$DOCKER_IMAGE_NAME" 
 
       # setup Docker buld action
       - name: Set up Docker Buildx
